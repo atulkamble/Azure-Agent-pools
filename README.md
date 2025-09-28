@@ -206,4 +206,113 @@ You should see the agent name with status `online`. Queue a simple build to conf
     └── provision-azure-windows-agent.sh
 ```
 
-Feel free to adapt the scripts for advanced scenarios such as ephemeral agents, Azure VM Scale Sets, containerized agents, or centralized secret retrieval via Key Vault/Managed Identity.
+Here’s a **basic guide with sample codes** to understand and use **Azure Pipelines agent pools** 👇
+
+---
+
+# 🔹 Azure Pipelines – Pool Basics
+
+In Azure DevOps, **pools** define the group of agents where your pipeline jobs will run.
+Every `pool` contains **agents** (Microsoft-hosted or Self-hosted).
+
+---
+
+## 1️⃣ Example – Using Microsoft-hosted agent
+
+```yaml
+# azure-pipelines.yml
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo "Running on Microsoft-hosted agent (Ubuntu)"
+```
+
+✅ This runs on an **Ubuntu VM** provided by Azure DevOps.
+Other available images: `windows-latest`, `macos-latest`.
+
+---
+
+## 2️⃣ Example – Using a Self-hosted agent pool
+
+Suppose you created a pool in Azure DevOps called `MySelfHostedPool` and added an agent to it.
+
+```yaml
+# azure-pipelines.yml
+pool:
+  name: 'MySelfHostedPool'
+
+steps:
+- script: echo "Running on Self-hosted agent"
+```
+
+---
+
+## 3️⃣ Example – Targeting a specific Agent by demand
+
+You can filter jobs within a pool using **demands** (capabilities).
+
+```yaml
+pool:
+  name: 'MySelfHostedPool'
+  demands:
+    - Agent.Name -equals MyLinuxAgent
+
+steps:
+- script: echo "This runs on MyLinuxAgent"
+```
+
+---
+
+## 4️⃣ Example – Parallel jobs in a pool
+
+```yaml
+jobs:
+- job: Build
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: echo "Building project"
+
+- job: Test
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - script: echo "Running tests on Windows"
+```
+
+Here, **jobs run in parallel** on different agents.
+
+---
+
+## 5️⃣ Example – Pipeline with matrix strategy
+
+Useful for testing on multiple OS versions:
+
+```yaml
+jobs:
+- job: TestMatrix
+  strategy:
+    matrix:
+      linux:
+        vmImage: 'ubuntu-latest'
+      windows:
+        vmImage: 'windows-latest'
+  pool:
+    vmImage: $(vmImage)
+  steps:
+  - script: echo "Running on $(vmImage)"
+```
+
+---
+
+🔑 **Key Notes:**
+
+* `pool: vmImage` → Microsoft-hosted
+* `pool: name` → Self-hosted
+* Use **demands** if multiple agents are in the pool.
+* Each job runs on a separate agent.
+
+---
+
+
