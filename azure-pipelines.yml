@@ -1,0 +1,6 @@
+# azure-pipelines.yml
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo "Running on Microsoft-hosted agent (Ubuntu)"
